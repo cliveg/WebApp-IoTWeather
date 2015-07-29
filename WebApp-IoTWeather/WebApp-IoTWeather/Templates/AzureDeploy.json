@@ -1,0 +1,99 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "region": {
+            "type": "string",
+            "allowedValues": [
+                "West US",
+                "East US",
+                "East Asia",
+                "Southeast Asia",
+                "West Europe"
+            ],
+            "metadata": {
+                "description": "Location of the resource group and all contained resources"
+            }
+        },
+        "siteName": {
+            "type": "string",
+            "defaultValue": "IoTWeather"
+        },
+        "tshirtSize": {
+            "type": "string",
+            "defaultValue": "NorthAmerica",
+            "allowedValues": [
+                "NorthAmerica",
+                "NorthAmerica-Geo"
+            ],
+            "metadata": {
+                "description": "T-shirt size of deployment"
+            }
+        }
+    },
+    "variables": {
+        "templateBaseUrl": "https://raw.githubusercontent.com/cliveg/WebApp-IoTWeather/master/WebApp-IoTWeather/WebApp-IoTWeather/Templates/",
+        "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'WebSite.json')]",
+        "tshirtSizeNorthAmerica": {
+            "location0": "West US",
+            "location1": "West US",
+            "hostingPlanName0": "[concat('WebApp-HP-', parameters('siteName'), '-US-West')]",
+            "hostingPlanName1": "[concat('WebApp-HP-', parameters('siteName'), '-US-West')]",
+            "name0": "[concat('WebApp-', parameters('siteName'), '-US-West')]",
+            "name1": "[concat('WebApp-', parameters('siteName'), '-US-West')]",
+            "vmTemplate": "[concat(variables('templateBaseUrl'), 'WebSite.json')]",
+            "sku": "Free",
+            "workerSize": "0",
+            "vmCount": 1
+        },
+        "tshirtSizeNorthAmerica-Geo": {
+            "location0": "West US",
+            "location1": "East US",
+            "hostingPlanName0": "[concat('WebApp-HP-', parameters('siteName'), '-US-West')]",
+            "hostingPlanName1": "[concat('WebApp-HP-', parameters('siteName'), '-US-East')]",
+            "name0": "[concat('WebApp-', parameters('siteName'), '-US-West')]",
+            "name1": "[concat('WebApp-', parameters('siteName'), '-US-East')]",
+            "vmTemplate": "[concat(variables('templateBaseUrl'), 'WebSite.json')]",
+            "sku": "Standard",
+            "workerSize": "0",
+            "vmCount": 2
+        },
+        "tshirtSize": "[variables(concat('tshirtSize', parameters('tshirtSize')))]"
+    },
+    "resources": [
+        {
+            "name": "WebApp-Deploy",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "copy": {
+            "name": "WebAppCopy",
+            "count": "[variables('tshirtSize').vmCount]"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "siteLocation": {
+                        "value": "[variables('tshirtSize').location0]"
+                    },
+                    "hostingPlanName": {
+                        "value": "[variables('tshirtSize').hostingPlanName0]"
+                    },
+                    "siteName": {
+                        "value": "[variables('tshirtSize').name0]"
+                    },
+                    "sku": {
+                        "value": "[variables('tshirtSize').sku]"
+                    },
+                    "workerSize": {
+                        "value": "[variables('tshirtSize').workerSize]"
+                    }
+                }
+            }
+        }
+    ],
+  "outputs": {}
+}
