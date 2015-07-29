@@ -4,19 +4,19 @@
     "parameters": {
 
         "siteName": {
-	      "type": "string"
+            "type": "string"
         },
         "hostingPlanName": {
-	      "type": "string"
+            "type": "string"
         },
         "siteLocation": {
-	      "type": "string"
+            "type": "string"
         },
         "sku": {
-	      "type": "string"
+            "type": "string"
         },
         "workerSize": {
-	      "type": "string"
+            "type": "string"
         }
     },
     "resources": [
@@ -50,9 +50,24 @@
             ],
             "properties": {
                 "name": "[parameters('siteName')]",
-                "serverFarm": "[parameters('hostingPlanName')]",
-                "webSocketsEnabled": true
-            }
+                "serverFarm": "[parameters('hostingPlanName')]"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-06-01",
+                    "name": "web",
+                    "type": "config",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+                    ],
+                    "properties": {
+                        "webSocketsEnabled": true
+                        ]
+                    }
+                }
+            ]
+  
+
         },
         {
             "apiVersion": "2014-04-01",
